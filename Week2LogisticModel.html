@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Generalized linear models</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Dr Nemanja Vaci" />
+    <meta name="date" content="2024-02-15" />
+    <script src="Week2LogisticModel_files/header-attrs/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Generalized linear models
+]
+.subtitle[
+## Logistic regression
+]
+.author[
+### Dr Nemanja Vaci
+]
+.date[
+### 2024-02-15
+]
+
+---
+
+
+
+
+
+
+## Press record
+
+---
+
+## First meeting practice
+
+---
+
+## Linear regression
+
+Gaussian distribution:
+`\(y_{i} \sim \mathcal{N}(\mu_{i},\sigma)\)` &lt;br/&gt; &lt;br/&gt;
+`\(\mu_{i} = \alpha+\beta*x_i\)` &lt;br/&gt;&lt;br/&gt; 
+ 
+&lt;img src="Week2LogisticModel_files/figure-html/unnamed-chunk-1-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+---
+## Exponential family
+.center[
+&lt;img src="Exp5.png", width = "70%"&gt; &lt;br/&gt;
+]
+???
+We can use all these functions as an outcome in the generalized linear models&lt;br/&gt;
+Poisson - counts with no upper bound &lt;br/&gt;
+Gamma - always positive, time to an event with multiple components (eg. age onset of cancer) &lt;br/&gt;&lt;br/&gt;
+Many of these distributions will converge to Normal: Binomial if the probability is far from edge, Poisson and Gamma if the mean is large - remember central limit theorem&lt;br/&gt;&lt;br/&gt;
+https://en.wikipedia.org/wiki/Exponential_family&lt;br/&gt;&lt;br/&gt;
+https://i.stack.imgur.com/HgpO4.jpg &lt;br/&gt;&lt;br/&gt;
+Check out amazing lectures from Richard McElreath (this lecture uses his idea extensively): [youtube channel](https://www.youtube.com/channel/UCNJK6_DZvcMqNSzQdEkzvzA)
+---
+
+## Binomial distribution
+Distribution: &lt;br/&gt;
+`$$y_i \sim Binomial(n,p)$$` &lt;br/&gt;&lt;br/&gt;
+
+Number of successes of n number of independent Bernoulli trials -&gt; Binomial distribution:&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;
+Probability mass function: `\(P(X=x)=(^n_x)p^x*(1-p)^{n-x}\)` &lt;br/&gt;&lt;br/&gt;
+**.red[Mean]**: `\(\mu=n*p\)` &lt;br/&gt;&lt;br/&gt;
+**.green[Variance]**: `\(\sigma^2=n*p(1-p)\)`
+???
+Number of successes in a sequence of n independent estimates. The probability of seeing __x__ number of successes in __n__ tries. &lt;br/&gt;
+---
+
+## Logistic regression
+
+`$$p=\alpha+\beta*x_i$$`
+--
+
+What would happen if we would model probability using linear regression?&lt;br/&gt;&lt;br/&gt;
+--
+Linear function is unbounded - does not have to result in a number between 0 and 1 &lt;br/&gt;&lt;br/&gt;
+Errors are not necessarily normal &lt;br/&gt;&lt;br/&gt;
+Mean and SD are related &lt;br/&gt;
+--
+&lt;br/&gt;
+Map values to [0,1]: &lt;br/&gt;
+`$$f(p) =log(\frac{p}{1-p})$$`
+`$$logit(p_i)=\alpha+\beta*x_i$$`
+
+
+???
+Our y or the outcome are counts that are following Binomial distribution.&lt;br/&gt;
+What we would like to estimate/model is the probability (p)&lt;br/&gt;
+Mean and variance are related: [link](https://www.researchgate.net/publication/275248713/figure/fig1/AS:282627547385872@1444395066350/Mean-variance-relationships-for-different-models-A-normal-model-assumes-that-the_W640.jpg) 
+---
+## Probabilities
+&lt;img src="Week2LogisticModel_files/figure-html/unnamed-chunk-2-1.png" width="100%" /&gt;
+---
+
+## First step: odds
+`$$Odds =\frac{p_{i}}{1-p_{i}}$$`
+
+
+&lt;img src="Week2LogisticModel_files/figure-html/unnamed-chunk-3-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+???
+Odds - likelihood of an outcome. Probability that event would occur versus the probability that event will not occur. &lt;br/&gt; &lt;br/&gt;
+Odds ratios (often used as a same thing as __odds__) but in research used as a ratio of two different odds. The odds of event A happening in the case when B present, versus the odds of event happening in absence of B (e.g. medication).
+---
+## Second step: log odds
+
+`$$logOdds =log(\frac{p_{i}}{1-p_{i}})$$`
+
+&lt;img src="Week2LogisticModel_files/figure-html/unnamed-chunk-4-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+???
+The odds distribution is always positive and it is increasing exponentially, which means that we would like to unbound it to go also towards negative values and to be linear &lt;br/&gt;
+---
+
+## What is the model doing: log odds space?
+
+&lt;img src="image3.png", width = "100%"&gt;
+
+---
+
+## What is the model doing: probability space?
+
+&lt;img src="image2a.png", width = "100%"&gt;
+
+
+???
+We are squeezing the logit values in a probability space 
+---
+
+## Relation between LogOdds and Probabilities
+.center[
+&lt;img src="image4.png", width = "50%"&gt;
+]
+---
+
+## Logistic regression in R
+
+We return back to our crying babies that are motivated to start crawling. 
+
+
+
+
+&lt;img src="Week2LogisticModel_files/figure-html/unnamed-chunk-6-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Logistic regression in R: coefficients
+
+Predict crawling success as a linear function of age
+
+
+```r
+glm1 &lt;- glm ( Crawl ~ Age, data = Babies, family = binomial ( link = 'logit' ))
+glm1 $ coefficients
+```
+
+```
+## (Intercept)         Age 
+##  -1.3307752   0.1194777
+```
+&lt;br/&gt;&lt;br/&gt;
+Three ways to interpret logistic regression:&lt;br/&gt;&lt;br/&gt;
+ 1. Logit values&lt;br/&gt;
+ 2. **.red[Odds]**&lt;br/&gt;
+ 3. **.green[Probabilities]**&lt;br/&gt;
+
+---
+## Odds ratio space
+
+Odds:
+
+```r
+exp ( glm1 $ coefficients )
+```
+
+```
+## (Intercept)         Age 
+##   0.2642723   1.1269081
+```
+
+Intercept: When Age is **.red[zero]**, the **.red[odds]** of babies crawling are 74% (1-.26) **.green[less likely]** than odds of crawling.  
+
+Age: Babies **.red[one month older]** are 12% more likely to start crawling OR unit increase in Age **.green[increases the odds]** of crawling by a factor of 1.12 
+
+???
+For 0.26 baby that crawls, you will have 1 baby that does not crawl &lt;br/&gt;&lt;br/&gt;
+Or we can invert the odds:1/0.26 = 3.84 &lt;br/&gt;
+
+At Age 0 (birth), it is 3.84 times more likely for babies not to crawl than to crawl. &lt;br/&gt; 
+For every 3.84 babies that do not crawl you will have 1 that does. &lt;br/&gt;&lt;br/&gt;
+
+---
+
+## Probability space: intercept
+
+Logit to probability space: `$$\frac{1}{1+exp^{-(\alpha+\beta*x)}}$$`&lt;br/&gt;
+
+
+Intercept: Estimated probability of babies starting to crawl when Age is 0 (birth) &lt;br/&gt;
+
+
+```r
+1 / ( 1 + exp ( - ( -1.33078 + 0.119 * 0)))
+```
+
+```
+## [1] 0.2090304
+```
+
+---
+
+## Probability space: slope
+
+We need to look where to evaluate changes on the curve:&lt;br/&gt;
+
+
+```r
+1 / ( 1 + exp( 1.33078 - 0.11948 * 10))
+```
+
+```
+## [1] 0.4660573
+```
+
+```r
+arm::invlogit(coef( glm1 )[[ 1 ]] + coef( glm1 )[[ 2 ]] * mean( Babies $ Age ))
+```
+
+```
+## [1] 0.6562395
+```
+
+Estimated probability of babies starting to crawl when Age is 10 or mean of the sample
+
+---
+
+## Interpretation continued
+
+
+```r
+Babies$LogOdds=-1.33078+0.11948*Babies$Age
+Babies$Odds=exp(Babies$LogOdds)
+Babies$Probs=Babies$Odds/(1+Babies$Odds)
+```
+&lt;img src="Week2LogisticModel_files/figure-html/unnamed-chunk-12-1.png" width="100%" /&gt;
+
+???
+
+This is the connection between the log odds, odds and probabilities in our data, based on our model. 
+---
+
+## Predicted probability versus outcome
+
+
+```r
+ggplot(data=Babies, aes(x=Age, y=Probs))+geom_point(size=3, col='blue')+geom_point(data=Babies, aes(x=Age, y=Crawl), size=3, col='red')
+```
+
+&lt;img src="Week2LogisticModel_files/figure-html/unnamed-chunk-13-1.png" width="100%" style="display: block; margin: auto;" /&gt;
+???
+The red dots indicate the observed crawling values (1 and 0) - whether baby is crawling or not given their age. The blue dots are predicted probabilities by the model. 
+---
+## Relationship between probabilities and odds
+
+Probability: `\(p = \frac{f}{N}\)`&lt;br/&gt;
+Expectations of how many times we will see event in N number of trials (between 0 and 1) &lt;br/&gt;&lt;br/&gt;&lt;br/&gt;
+Odds of event: `\(odds = \frac{p}{1-p}\)` (between 0 and positive infinity)  &lt;br/&gt;
+Probability that the event will occur divided by the probability that event will not occur &lt;br/&gt;&lt;br/&gt;&lt;br/&gt;
+
+p = 0.80&lt;br/&gt;
+odds = `\(\frac{0.80}{0.20}=4\)` - odds are 4 to 1 that the event will occur &lt;br/&gt;
+p = 0.20&lt;br/&gt;
+odds= `\(\frac{0.20}{0.80}=0.25\)` - odds are 0.25 to 1 that the event will occur &lt;br/&gt;&lt;br/&gt;&lt;br/&gt;
+If a race horse runs 100 races and wins 25 times and loses 75 of times, the probability of winning is 25/100 = 0.25 or 25%, but the odds of the horse winning are 25/75 = 0.333 or 1 win to 3 loses &lt;br/&gt;
+
+---
+
+## Logistic regression formula
+
+What is missing in this equation? 
+
+`$$log(\frac{p}{1-p})=\alpha+\beta*x_i$$` &lt;br/&gt; &lt;br/&gt;
+
+$$ y = \alpha + \beta * Age + \epsilon $$  &lt;br/&gt;&lt;br/&gt;
+
+--
+
+We do not have an estimation of error: `\(y_i \sim Binomial(n,p)\)`
+
+We do have residuals - estimate of the fit &lt;br/&gt;
+
+`$$residual_i=-2*(y_i-logit^{-1}(\beta*x_i))$$`
+
+---
+
+## Deviance
+
+Goodness of fit: deviance of the fitted model with respect to a perfect model &lt;br/&gt;&lt;br/&gt;
+Null deviance: `\(D=-2*loglik(\beta_0)\)` &lt;br/&gt;&lt;br/&gt;
+Residual deviance: `\(D=-2*loglik(\beta*x)\)` &lt;br/&gt;&lt;br/&gt;
+
+
+```r
+with(glm1, pchisq(null.deviance - deviance, df.null - df.residual, lower.tail = FALSE))
+```
+
+```
+## [1] 1.751679e-05
+```
+
+AIC: `\(-2loglik(\beta*x)+2*npar\)`&lt;br/&gt;&lt;br/&gt;
+BIC: `\(-2loglik(\beta*x)+log(number of observations)*npar\)`
+
+???
+Deviance: difference in categorising outcomes in comparison to the perfect model&lt;br/&gt;
+Likelihood: the probability of the observed results given the parameter estimates &lt;br/&gt;
+AIC and BIC are used to compare the models: [link](https://stats.stackexchange.com/a/767)
+---
+
+&lt;style type="text/css"&gt;
+pre {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+pre[class] {
+  max-height: 100px;
+}
+&lt;/style&gt;
+
+&lt;style type="text/css"&gt;
+.scroll-100 {
+  max-height: 100px;
+  overflow-y: auto;
+  background-color: inherit;
+}
+&lt;/style&gt;
+
+## Model results
+
+
+```r
+summary(glm1)
+```
+
+```
+## 
+## Call:
+## glm(formula = Crawl ~ Age, family = binomial(link = "logit"), 
+##     data = Babies)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -2.0687  -0.9876   0.5443   0.8979   1.6082  
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept) -1.33078    0.50868  -2.616 0.008894 ** 
+## Age          0.11948    0.03079   3.880 0.000104 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 131.79  on 99  degrees of freedom
+## Residual deviance: 113.35  on 98  degrees of freedom
+## AIC: 117.35
+## 
+## Number of Fisher Scoring iterations: 3
+```
+???
+[Wald test](https://stats.stackexchange.com/a/60083)
+
+---
+
+## Link functions and other GLMs
+
+ Most common Generalized linear models:
+ - Poisson regression: traffic, goals in a soccer game &lt;br/&gt;
+ - Negative binomial: same problems but deals with overdispersion &lt;br/&gt;
+ - Gamma regression: reaction times? always positive right skewed data &lt;br/&gt;
+---
+## Absolutely cool things to note 
+
+The question that we are asking is can we stratify the probability of a success in outcome using our predictor variables &lt;br/&gt;&lt;br/&gt;
+
+We are modelling the mean and we do not have an information on individual data points - no error &lt;br/&gt;&lt;br/&gt;
+
+The scale of parameters is different! &lt;br/&gt;&lt;br/&gt;
+
+Parameters are multiplicative - coefficient interact, especially in the tails of probability distribution &lt;br/&gt;&lt;br/&gt;
+
+Not easy to compare the models - especially if they differ in a more than one predictor - deviance criteria gives you information how well you model fits the mean &lt;br/&gt;
+---
+
+class: inverse, middle, center
+# Practical aspect
+---
+
+
+## Data
+
+NBA dataset: [Link](https://www.kaggle.com/ionaskel/nba-games-stats-from-2014-to-2018)
+
+
+```r
+basketball&lt;-read.table('Basketball.txt',sep='\t', header=T)
+knitr::kable(head(basketball[,c(5,13,18,31,34,43)]), format = 'html')
+```
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Home &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; X3PointShots &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; FreeThrows. &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Opp.3PointShots. &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Opp.FreeThrows. &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Win &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Away &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 13 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.529 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.308 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.818 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 32 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Away &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 6 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.867 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.323 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.750 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 83 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Home &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 8 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.652 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.368 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.769 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 112 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Home &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 12 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.684 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.481 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.941 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 165 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Away &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 7 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.769 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.364 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.652 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 196 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Away &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 7 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.611 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.500 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.650 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+---
+## Important aspects: theory
+
+- How do we use linear model with the non-normal outcomes (link functions) &lt;br/&gt;&lt;br/&gt;
+- What are logit values, how do we get to them &lt;br/&gt;&lt;br/&gt;
+- How to interpret logistic regression: logits, odds, and probabilities&lt;br/&gt;&lt;br/&gt;
+- What is deviance of the model and AIC 
+
+---
+## Important aspects: practice
+
+- Building a logistic model &lt;br/&gt;&lt;br/&gt;
+- Predicting values from logistic model &lt;br/&gt;&lt;br/&gt;
+- Transforming logit values to odds and to probabilities&lt;br/&gt;&lt;br/&gt;
+- Comparing models using deviance, anova function or AIC information&lt;br/&gt;&lt;br/&gt;
+- Cross-tabulating model predictions with observed data
+
+---
+## Literature
+
+Chapter 5 of "Data Analysis Using Regression and Multilevel/Hierarchical Models" by Andrew Gelman and Jennifer Hill  &lt;br/&gt;
+
+Chapter 10 of "Statistical Rethinking: A Bayesian Course with Examples in R and Stan " by Richard McElreath + check out his youtube channel
+
+Jaeger, F. (2008). Categorical data analysis: Away from ANOVAs (transformation or not) and towards logit mixed models. Journal of Memory and Language, 59, 434-446. 
+
+---
+
+## Song for the end
+
+[Link](https://youtu.be/ZINXFoQMZVs)
+
+---
+
+# Thank you for your attention
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"slideNumberFormat": "%current%",
+"highlightStyle": "github",
+"highlightLines": true,
+"ratio": "16:9",
+"countIncrementalSlides": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
